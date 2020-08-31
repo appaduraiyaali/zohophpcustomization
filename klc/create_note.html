@@ -1,0 +1,264 @@
+<html>
+<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>sample</title>
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<style>
+.container-fluid{
+    background-color: #fdf9f942;
+    height:800px;
+}
+.container-fluid_1{
+    background-color: #fdf9f942;
+    height:500px;
+}
+.contact{
+    padding: 3%;
+    height: 600px;
+}
+/*.col-md-3{*/
+/*    background: #ff9b00;*/
+/*    padding: 4%;*/
+/*    border-top-left-radius: 0.5rem;*/
+/*    border-bottom-left-radius: 0.5rem;*/
+/*}*/
+.col-md-9{
+    background: #fff;
+    padding: 3%;
+    border-top-right-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+}
+.contact-form label{
+    font-weight:600;
+}
+.alert-box{
+    background: white;
+    border: 2px solid black;
+    border-radius: 10px;
+    margin-top: 23%;
+    margin-left: 35%;
+}
+
+
+    .box{
+    display:inline-block;
+    position:relative;
+}
+
+.box_button{
+ position:absolute;
+ bottom:25px;
+ right:325px;
+}
+ .button{
+  background-color: #4CAF50; 
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+}
+
+.button1 {
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+</style>
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="https://www.bizappln.com/crm-projects/oopenspace/site.css">
+        <link rel="stylesheet" href="https://www.bizappln.com/crm-projects/oopenspace/richtext.min.css">
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script type="text/javascript" src="https://www.bizappln.com/crm-projects/oopenspace/jquery.richtext.min.js"></script>
+        <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+        <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+        <script src="https://live.zwidgets.com/js-sdk/1.0.5/ZohoEmbededAppSDK.min.js"></script>
+        <!--<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>-->
+</head>
+<body>
+    <div id= createnotepage>
+  <div class="container-fluid" style ="margin-bottom: 300px;">
+  <div class="container contact">
+      <div class="col-md-9">
+        <form  >
+          <div class="contact-form">
+            <div class="form-group">
+              <label class="control-label col-sm-2">Page Name:</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" id="page_name" placeholder="Enter Page Name" size="30" required>
+              </div>
+            </div>
+              <label class="control-label col-sm-2 mt-4">Note Content:</label>
+              <div class="col-sm-10">
+                   <!--<div class="page-wrapper box-content" >-->
+                    <textarea class="textcontent"  rows="25" cols="800" id="Message"></textarea>
+            <!--</div>-->
+                </div>
+                            <div>
+                  <label for="myfile">Select files:</label>
+  <input type="file" id="myfile" name="myfile" multiple><br><br>
+            </div>
+            <div>
+                 <div class="form-group">
+              <div class="col-lg-10 d-flex flex-row-reverse mt-3">
+                <button type="button" class="btn btn-success" style= "position: relative;left: 53px;top: 5px;" onclick="data()"> <i class="fa fa-send-o"></i>Create Note</button>
+              </div>
+            </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+ <div id ="newpage"></div>
+       <script type="text/javascript">
+       var notescreated ="";
+ ZOHO.embeddedApp.on("PageLoad",function(data)
+ {
+     console.log(data);
+     Account_id=data.EntityId[0];
+     console.log(data);
+     ZOHO.CRM.UI.Resize({height:"500",width:"700"});
+     Accountdetails();
+     });
+     function Accountdetails (){
+     var func_name = "createnote";
+var req_data ={
+  "arguments": JSON.stringify({
+      "accountid" : Account_id 
+  }) 
+};
+ZOHO.CRM.FUNCTIONS.execute(func_name, req_data)
+.then(function(data){
+    console.log('response data --> ',data);
+     datas = JSON.parse(data.details["output"]);
+     accountid = datas.id;
+    console.log(datas);
+    //  $(document).ready(function() {
+    //           $('.textcontent').richText();
+    //         $(".richText-editor").html("");
+    //     console.log($(".richText-editor")[0].innerHTML);
+    // });
+
+})
+}
+// var file = document.getElementById("myfile");
+
+// file.addEventListener("change", function() {
+//     for (var i = 0; i < file.files.length; i++) {
+//         console.log(file.files[i]);
+//     }
+// }, false);
+// $("#myfile").change(function(event){var tmppath = URL.createObjectURL(event.target.files[0]); console.log(tmppath)});
+ function data(){
+    // console.log(document.getElementsByClassName('richText-editor')[0].innerHTML);
+    console.log(document.getElementById("Message").value);
+        console.log(document.getElementById("page_name").value);
+    console.log(document.getElementById("myfile").value);
+    var titlename = document.getElementById("page_name").value;
+    ZOHO.CRM.API.getRelatedRecords({Entity:"Accounts",RecordID:accountid,RelatedList:"Notes",page:1,per_page:200})
+.then(function(data){
+    var eachrecord = data.data;
+    eachrecord.forEach(myFunction);
+    function myFunction(item, index) {
+        console.log(item);
+        notetitle = item.Note_Title;
+        if(notetitle==titlename)
+        {
+           notescreated ="true"; 
+          var crmnoteid = item.id;
+          var crmnotecontent = item.Note_Content;
+          var APIData = {
+	Note_Content : crmnotecontent +"\n\n\n"+ document.getElementById("Message").value
+	
+ }
+ console.log(APIData);
+          ZOHO.CRM.API.updateRelatedRecords({Entity:"Accounts",RecordID:accountid,RelatedList:"Notes",RelatedRecordID:crmnoteid,APIData:APIData})
+ .then(function(data){
+     console.log(data)
+ })
+      var filesToLoad  = document.getElementById("myfile").files;
+if(filesToLoad)
+{
+	var file = filesToLoad[0];
+	var filename = file.name;
+	ZOHO.CRM.API.attachFile({Entity:"Notes",RecordID:crmnoteid,File:{Name:filename,Content:file}})
+	.then(function(data){
+			console.log(data);
+	});
+}
+        }
+     
+    }
+    if(notescreated!="true")
+    {
+        ZOHO.CRM.API.addNotes({Entity:"Accounts",RecordID:accountid,Title:document.getElementById("page_name").value,Content:document.getElementById("Message").value}).then(function(data){
+ console.log(data);
+      datas = data.data[0].details;
+      console.log(datas);
+     creatednoteid = datas.id;
+     var filesToLoad  = document.getElementById("myfile").files;
+if(filesToLoad)
+{
+	var file = filesToLoad[0];
+	var filename = file.name;
+	ZOHO.CRM.API.attachFile({Entity:"Notes",RecordID:creatednoteid,File:{Name:filename,Content:file}})
+	.then(function(data){
+			console.log(data);
+	});
+}
+});
+var func_name = "notesdata";
+var req_data_1 ={
+  "arguments": JSON.stringify({
+      "pagename" : document.getElementById("page_name").value,
+      "ContentMessage" : document.getElementById("Message").value,
+      "filename" : document.getElementById("myfile").value
+  }) 
+};
+ZOHO.CRM.FUNCTIONS.execute(func_name, req_data_1)
+.then(function(data_1){
+    console.log(data_1);
+})
+}
+
+    }
+})    
+}
+//     $('.richText-editor').html(function(index,html){
+//     // return html.replace('false',Yes);
+//       console.log(document.getElementsByClassName('richText-editor')[0].innerHTML);
+// });
+//     var func_name = "notesdata";
+// var req_data_1 ={
+//   "arguments": JSON.stringify({
+//       "pagename" : document.getElementById("page_name").value,
+//       "ContentMessage" : document.getElementsByClassName('richText-editor')[0].innerHTML,
+//       "filename" : document.getElementById("myfile").value
+//   }) 
+// };
+// ZOHO.CRM.FUNCTIONS.execute(func_name, req_data_1)
+// .then(function(data_1){
+//     Function_Response = (data_1.details.output);
+//     Response = "Notes Created succesfully";
+//     console.log(Function_Response);
+//     $('#createnotepage').remove();
+//     $('#newpage').append('<div class="container-fluid_1"><div class="row"><div class="col-12"><div class="col-4 alert-box"><hr><p>'+Response+'</p><hr><div><button style="margin-left: 80%;margin-bottom: 3%;" type="button" class="btn btn-sm btn-primary" onclick="Popupclose()">Close</button></div></div></div></div></div>');
+// })
+// }
+function Popupclose()
+{
+ZOHO.CRM.UI.Popup.close()
+.then(function(data_1){
+    console.log(data_1);
+})
+};
+      ZOHO.embeddedApp.init();
+  </script>  
+</body>
+</html>
