@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <style>
+    table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 50%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+</style>
+	<script src="https://live.zwidgets.com/js-sdk/1.0.5/ZohoEmbededAppSDK.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+  </head>
+  <body>
+  <div style="margin-top: 30px;text-align: center">
+	<label for="myfile" >Select a file:</label>
+    <input type="file" id="filetoupload" name="myfile">
+	</div>
+	<br>
+	<div style="text-align: center">
+	<input type="submit" value="Upload" class="btn btn-outline-dark" onclick="Attach_file()">
+	</div>
+	<script type="text/javascript">
+    
+	var EntityId;
+    ZOHO.embeddedApp.on("PageLoad",function(data)
+   {
+    console.log('entity data',data);
+    EntityId=data.EntityId[0];
+    //ZOHO.CRM.UI.Resize({height:"800",width:"1000"});
+    //Class_details();
+	console.log('EntityId ',EntityId);
+   })
+   ZOHO.embeddedApp.init();
+   
+   function callcrmFunction(attachID) {
+      var func_name = "StudentRecordUpdateForClass";
+      var req_data ={
+      "arguments": JSON.stringify({
+      "ClassID" : EntityId,
+	  "AttachID" : attachID
+      })
+     };
+	 ZOHO.CRM.FUNCTIONS.execute(func_name, req_data)
+     .then(function(data){
+	     console.log('returned data ',data);
+	 });
+   }
+   
+   
+
+  
+  
+	function Attach_file(){
+	var filesToLoad  = document.getElementById("filetoupload").files;
+	console.log('files details ',filesToLoad);
+    if(filesToLoad)
+    {
+	var file = filesToLoad[0];
+	console.log(file);
+	ZOHO.CRM.API.attachFile({Entity:"Classes",RecordID:EntityId,File:{Name:file.name,Content:file}})
+	.then(function(data){
+			console.log(data);
+			attachdata=data.data[0];
+			console.log('attchdata',attachdata.details);
+			attachdatadetails=attachdata.details;
+			attachmentID=attachdatadetails.id;
+			console.log('attachmentID ',attachmentID);
+			callcrmFunction(attachmentID);
+	});
+	/*ZOHO.CRM.API.getRecord({Entity:"Classes",RecordID:EntityId})
+.then(function(data){
+    console.log(data)
+})*/
+     }
+	 
+     }
+	 
+	 
+	</script>
+  </body>
+</html>
