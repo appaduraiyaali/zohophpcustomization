@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+  <head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <style>
+    table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 50%;
+  text-align: center;
+  
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: center;
+  padding: 8px;
+}
+</style>
+	<script src="https://live.zwidgets.com/js-sdk/1.0.5/ZohoEmbededAppSDK.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+  </head>
+  <body>
+    <div style="margin-top: 30px;margin-left:10px;font-weight:bold;">
+	<label>Split your value into years:</label>
+	</div> 
+	<div>
+	<table id="dataTable" style="margin-left:auto;margin-right:auto;">
+	
+	<th>year</th>
+    <th>value</th>
+    <th>cost</th>
+    </tr>
+	<tr>
+    <td><input type="text" style="border: none;text-align: center;" name="currentyear" id="year" readonly></td>
+    <td><input type="number" class = "formdecimal" name="value" id="insertvalue" placeholder="insert value in €" onchange= "decimalcheck()"></td>
+    <td><input type="number" class = "formdecimal" name="cost" id="insertcosts" placeholder="insert costs in €" onchange= "decimalcheck()"></td>
+    </tr>
+	</table>
+	</div>
+	
+	<div style="text-align: center">
+	<input type="submit" value="+add date" class="btn bg-transparent" onclick="addRow('dataTable')">
+	</div>
+	
+	<div style="margin-top: 30px;text-align: center">
+	<input type="submit" value="CREATE" id="createBtn" class="btn btn-warning" onclick="addvalues()">
+    </div>
+	<div class="alert alert-warning" id="errorMsg" role="alert" style="display:none;margin-top: 30px;text-align: center;margin-left:auto;margin-right:auto; width:500px;">
+	  Please!!! the sum value should be equal to the value of the deal.
+    </div>
+	<div class="alert alert-success" id="successMsg" role="alert" style="display:none;margin-top: 30px;text-align: center;margin-left:auto;margin-right:auto; width:500px;">
+    SUCCESS!!! Records created in Imputazioni di Revenue</div>
+  
+	<script type="text/javascript">
+	
+	$(document).ready( function() {
+    var now = new Date();
+    var today = now.getFullYear();
+     $('#year').val(today);
+	 
+    });
+
+	
+	
+	var EntityId;
+	var Amount;
+	var Dealname;
+	var Territory;
+	var territoryID;
+   ZOHO.embeddedApp.on("PageLoad",function(data)
+   {
+    console.log('entity data',data);
+    EntityId=data.EntityId[0];
+	console.log('EntityId ',EntityId);
+	
+
+	ZOHO.CRM.API.getRecord({Entity:"Deals",RecordID:EntityId})
+    .then(function(data){
+    console.log(data);
+	var details=data.data[0];
+    Amount=details.Amount;
+	Dealname=details.Deal_Name;
+	Territory=details.Territory[0];
+	console.log('deal details',Amount, Dealname, Territory);
+	
+	ZOHO.CRM.API.searchRecord({Entity:"Company_Datrix",Type:"word",Query:Territory})
+    .then(function(data){
+    console.log(data);
+	var territoryDetails=data.data[0];
+    territoryID=territoryDetails.id;
+	console.log('territoryID',territoryID);
+      })
+      })
+   })
+   ZOHO.embeddedApp.init();
+   
+   
+   
+ function create_Imputazioni_di_Revenue(year,value,cost,date){
+ 
+	var recordData = {
+        "Name": Dealname+'-'+year,
+        "Valore_Revenue": value,
+		"Data_Imputazione": date,
+		"Costi_Esterni_Imputabili":cost,
+		"Azienda_di_Riferimento":territoryID,
+		"Affare_di_Riferimento":EntityId
+      }
+	  console.log(recordData);
+      ZOHO.CRM.API.insertRecord({Entity:"Imputazioni_di_Revenue",APIData:recordData,Trigger:["workflow"]}).then(function(data){
+	  console.log(data);
+	  });
+	 
+ }
+   
+   
+ function addRow(tableID) {
+     
+			var table = document.getElementById(tableID);
+			var rowCount = table.rows.length;
+			var lastrow = rowCount-1;
+			console.log("rowCount "+rowCount);
+			//alert(tableID);
+			var lastyear=document.getElementById(tableID).rows[lastrow].cells[0].firstChild.value;
+			currentyear=parseInt(lastyear)+1;
+			//alert(currentyear);
+			var row = table.insertRow(rowCount);
+			var colCount = table.rows[0].cells.length;
+
+			for(var i=0; i<colCount; i++) {
+
+				var newcell	= row.insertCell(i);
+				newcell.innerHTML = table.rows[1].cells[i].innerHTML;
+				console.log(newcell.childNodes);
+				console.log(newcell.childNodes[0].type);
+				switch(newcell.childNodes[0].type) {
+				    
+					case "number":
+							newcell.childNodes[0].value = "";
+							newcell.className = "formdecimal";
+							//newcell.id="newcellid";
+							break;
+					case "text":
+							newcell.childNodes[0].value = currentyear;
+							break;
+				}
+			}
+		}
+    
+	
+	function decimalcheck(){
+	$("[id^='insert']").each(function() {
+		//alert($(this).val);
+            $(this).val(parseFloat($(this).val()).toFixed(2));
+        });
+	}
+	
+	
+	function addvalues(){	
+	  
+	    let valueMap = new Map();
+		let costMap = new Map();
+             var year;
+			 var value;
+			 var cost;
+			 var today = new Date();
+			 var month='' + (today.getMonth() + 1);
+			 var day='' + today.getDate();
+			 
+			 if (month.length < 2) {
+               month = '0' + month;
+		      }
+             if (day.length < 2) {
+              day = '0' + day;
+		     }
+			 
+			var errorAlert = document.getElementById('errorMsg');
+			var successAlert = document.getElementById('successMsg');
+			var createBtn = document.getElementById('createBtn');
+		    var tds = document.getElementById('dataTable').getElementsByTagName('td');
+            var sum = 0;
+            for(var i = 0; i < tds.length; i++)
+			{
+			
+			// alert("i="+i+" and value="+tds[i].firstChild.value);
+			    if(tds[i].firstChild.name=='currentyear'){
+				   year=tds[i].firstChild.value;
+                }
+				
+                if(tds[i].firstChild.name=='value'){
+				   if(tds[i].firstChild.value!==''){
+					sum = sum + parseFloat(tds[i].firstChild.value);
+					value=parseFloat(tds[i].firstChild.value);
+					valueMap.set(year, value); 
+                }
+				}
+				
+				if(tds[i].firstChild.name=='cost'){
+				   if(tds[i].firstChild.value!==''){
+					value=parseFloat(tds[i].firstChild.value);
+					costMap.set(year, value); 
+                }
+				}
+				
+			}
+				console.log(valueMap);
+				console.log(costMap);
+				
+			sum= sum.toFixed(2);	
+			//alert("sum of values "+sum);
+			
+
+			if(Amount==sum){
+			  createBtn.disabled = true;
+			  //alert("equaalllsss");	
+			  for(i=0;i<valueMap.size;i++){
+				var key = Array.from(valueMap.keys())[i];
+				var value = valueMap.get(key); 
+				var cost = costMap.get(key); 
+				console.log('fetched key and value '+key+' - '+value);
+				var datevalue=key+'-'+month+'-'+day;
+				console.log(i+' - '+key+' - '+value+' - '+datevalue);
+				create_Imputazioni_di_Revenue(key, value, cost, datevalue);
+				setTimeout(function(){
+				successAlert.style.display = 'block'; 
+				}, 6000); 
+				setTimeout(function(){
+				ZOHO.CRM.UI.Popup.close();
+				}, 8000); 
+				errorAlert.style.display = 'none';
+				
+				}
+				
+			}
+			else{
+			difference= Math.abs(Amount - sum);//Amount-sum;
+			//alert(difference);
+			errorAlert.style.display = 'block'; 
+			if(sum>Amount){
+			errorAlert.innerHTML = "Please!!! the sum value should be equal to the value of the deal $"+Amount+'. you need to reduce $'+difference; 
+			}
+			else if(sum<Amount){
+			errorAlert.innerHTML = "Please!!! the sum value should be equal to the value of the deal $"+Amount+'. you need to add $'+difference; 
+			}
+			 
+			successAlert.style.display = 'none'; 
+			
+			//alert('alert!!!!!sum of values('+sum+') are not equal to deal value');
+			}
+			
+	 }
+	 
+	</script>
+  </body>
+</html>
