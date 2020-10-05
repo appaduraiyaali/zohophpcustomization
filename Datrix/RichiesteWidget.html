@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+  <head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <style>
+    table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 50%;
+  text-align: center;
+  
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: center;
+  padding: 8px;
+}
+</style>
+	<script src="https://live.zwidgets.com/js-sdk/1.0.5/ZohoEmbededAppSDK.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+  </head>
+  <body>
+    <div style="margin-top: 30px;margin-left:10px;font-weight:bold;">
+	<label>Split your value into years:</label>
+	</div>
+<div style="text-align: center">
+<label>Scadenza di pagamento:</label>
+<select id="Scadenza" name="Scadenzalist">
+  <option value="Immediato">Immediato</option>
+  <option value="A 15 Giorni">A 15 Giorni</option>
+  <option value="A 30 Giorni">A 30 Giorni</option>
+  <option value="A 60 Giorni">A 60 Giorni</option>
+  <option value="A 90 Giorni">A 90 Giorni</option>
+  <option value="A 120 Giorni">A 120 Giorni</option>
+  <option value="A 150 Giorni">A 150 Giorni</option>
+  <option value="A 180 Giorni">A 180 Giorni</option>
+</select><br>
+</div>	<br>
+	<div style="width:100%">
+	<table id="dataTable" style="margin-left:auto;margin-right:auto;text-align: center;">
+	
+	<th>Date</th>
+	<th>Name of "voce"</th>
+    <th>value</th>
+    </tr>
+	<tr>
+    <td><input type="date" style="text-align: center;" name="currentyear" id="year"></td>
+	<td><input type="text" style="text-align: center;" name="vocename" id="voce" placeholder="type name here"></td>
+    <td><input type="number" style="text-align: center;" name="value" id="insertvalue" placeholder="insert value in €" onchange= "decimalcheck()"></td>
+    </tr>
+	</table>
+	</div>
+	
+	<div style="text-align: center">
+	<input type="submit" value="+add date" class="btn bg-transparent" onclick="addRow('dataTable')">
+	</div>
+	
+	<div style="margin-top: 30px;text-align: center">
+	<input type="submit" value="CREATE" id="createBtn" class="btn btn-warning" onclick="addvalues()">
+    </div>
+	<div class="alert alert-warning" id="errorMsg" role="alert" style="display:none;margin-top: 30px;text-align: center;margin-left:auto;margin-right:auto; width:500px;">
+	  Please!!!, the sum value should be equal to the value of the deal.
+    </div>
+	<div class="alert alert-success" id="successMsg" role="alert" style="display:none;margin-top: 30px;text-align: center;margin-left:auto;margin-right:auto; width:500px;">
+    SUCCESS!!! Records created in Richiesta Di Fattura</div>
+  
+	<script type="text/javascript">
+	
+	
+	var EntityId;
+	var Amount;
+	var Dealname;
+	var Territory;
+	var territoryID;
+	var accountID;
+	var areaID;
+	var categoryID;
+   ZOHO.embeddedApp.on("PageLoad",function(data)
+   {
+    console.log('entity data',data);
+    EntityId=data.EntityId[0];
+	console.log('EntityId ',EntityId);
+		
+	
+	
+	ZOHO.CRM.API.getRecord({Entity:"Deals",RecordID:EntityId})
+    .then(function(data){
+    console.log(data);
+	var dealDetails=data.data[0];
+    Amount=dealDetails.Amount;
+	Dealname=dealDetails.Deal_Name;
+	Territory=dealDetails.Territory[0];
+	console.log('deal details',Amount, Dealname, Territory);
+	var accountDetails=dealDetails.Account_Name;
+	accountID = accountDetails.id;
+	console.log("accountID",accountID);
+	var areaDetails=dealDetails.Area_Affare;
+	areaID = areaDetails.id;
+	console.log("areaID",areaID);
+	var categoryDetails=dealDetails.Categoria_Affare;
+	categoryID = categoryDetails.id;
+	console.log("categoryID",categoryID);
+
+	 
+	ZOHO.CRM.API.searchRecord({Entity:"Company_Datrix",Type:"word",Query:Territory})
+    .then(function(data){
+    console.log(data);
+	var territoryDetails=data.data[0];
+    territoryID=territoryDetails.id;
+	console.log('territoryID',territoryID);
+      })
+	  	})
+      
+   })
+   ZOHO.embeddedApp.init();
+   
+   
+   
+ function create_Richiesta_Di_Fattura(date, vocename, value, scadenza){
+ 
+	var recordData = {
+	    "Name":Dealname+'-'+vocename,
+		"Composizione_Fattura": [
+                {
+                    "Voce": vocename,
+					"Prezzo_Unitario":value,
+                    "Quantit": 1,
+					"Area_della_Voce":areaID,
+		            "Categoria_della_Voce":categoryID
+                }],
+		
+		"Scadenza_Pagamento":scadenza,
+		"Data_Emissione_Fattura": date,
+		"Fatturabile_da":territoryID,
+		"Azienda_a_cui_Fatturare":accountID,
+		"Affare_di_Riferimento":EntityId
+		
+      }
+	  console.log(recordData);
+      ZOHO.CRM.API.insertRecord({Entity:"Richieste_di_Fattura",APIData:recordData,Trigger:["workflow"]}).then(function(data){
+	  console.log(data);
+	  });
+	 
+ }
+   
+   
+ function addRow(tableID) {
+         
+			var table = document.getElementById(tableID);
+			var rowCount = table.rows.length;
+			var lastrow = rowCount-1;
+			//alert('rowCount '+rowCount);
+		
+			
+			console.log("rowCount "+rowCount);
+			//alert(tableID);
+			var lastyear=document.getElementById(tableID).rows[lastrow].cells[0].firstChild.value;
+			currentyear=parseInt(lastyear)+1;
+			//alert(currentyear);
+			var row = table.insertRow(rowCount);
+			var colCount = table.rows[0].cells.length;
+
+			for(var i=0; i<colCount; i++) {
+
+				var newcell	= row.insertCell(i);
+				newcell.innerHTML = table.rows[1].cells[i].innerHTML;
+				console.log(newcell.childNodes);
+				console.log(newcell.childNodes[0].type);
+				switch(newcell.childNodes[0].type) {
+				    
+					case "number":
+							newcell.childNodes[0].value = "";
+							//newcell.id="newcellid";
+							break;
+					case "text":
+							newcell.childNodes[0].value = "";
+							break;
+				}
+			}
+		
+    }
+	
+	function decimalcheck(){
+	$("[id^='insert']").each(function() {
+		//alert($(this).val);
+            $(this).val(parseFloat($(this).val()).toFixed(2));
+        });
+	}
+	
+	
+	function addvalues(){	
+	  
+	    let valueMap = new Map();
+		let voceMap = new Map();
+             var year;
+			 var value;
+			 
+			var errorAlert = document.getElementById('errorMsg');
+			var successAlert = document.getElementById('successMsg');
+			var createBtn = document.getElementById('createBtn');
+			var scadenza = document.getElementById('Scadenza').value;
+			//alert(scadenza);
+		    var tds = document.getElementById('dataTable').getElementsByTagName('td');
+            var sum = 0;
+            for(var i = 0; i < tds.length; i++)
+			{
+			
+			// alert("i="+i+" and value="+tds[i].firstChild.value);
+			    if(tds[i].firstChild.name=='currentyear'){
+				   year=tds[i].firstChild.value;
+                }
+				
+                if(tds[i].firstChild.name=='value'){
+				   //alert(tds[i].firstChild.name);
+				   if(tds[i].firstChild.value!==''){
+                    //sum=sum+parseInt(tds[i].firstChild.value);
+					sum = sum + parseFloat(tds[i].firstChild.value);
+					value=parseFloat(tds[i].firstChild.value);
+					valueMap.set(year, value); 
+                }
+				}
+				
+				if(tds[i].firstChild.name=='vocename'){
+				   if(tds[i].firstChild.value!==''){
+					value=tds[i].firstChild.value;
+					voceMap.set(year, value); 
+                }
+				}
+				
+			}
+				console.log(valueMap);
+				console.log(voceMap);
+				
+			sum= sum.toFixed(2);	
+			//alert("sum of values "+sum);
+			
+
+			if(Amount==sum){
+			  createBtn.disabled = true;
+			  //alert("equaalllsss");	
+			  for(i=0;i<valueMap.size;i++){
+				var key = Array.from(valueMap.keys())[i];
+				
+				var value = valueMap.get(key); 
+			    var vocename = voceMap.get(key); 
+				console.log('fetched key and value '+key+' - '+value);
+				create_Richiesta_Di_Fattura(key, vocename, value, scadenza);
+				setTimeout(function(){
+				successAlert.style.display = 'block'; 
+				}, 6000); 
+				setTimeout(function(){
+				ZOHO.CRM.UI.Popup.close();
+				}, 8000); 
+				errorAlert.style.display = 'none';
+				}
+				
+			}
+			else{
+			difference= Math.abs(Amount - sum);//Amount-sum;
+			//alert(difference);
+			errorAlert.style.display = 'block'; 
+			if(sum>Amount){
+			errorAlert.innerHTML = "Please!!! the sum value should be equal to the value of the deal $"+Amount+'. you need to reduce $'+difference; 
+			}
+			else if(sum<Amount){
+			errorAlert.innerHTML = "Please!!! the sum value should be equal to the value of the deal $"+Amount+'. you need to add $'+difference; 
+			}
+			 
+			successAlert.style.display = 'none'; 
+			//alert('alert!!!!!sum of values('+sum+') are not equal to deal value');
+			}
+			
+	 }
+	 
+	</script>
+  </body>
+</html>

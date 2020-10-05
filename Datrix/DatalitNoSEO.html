@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+  <head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <style>
+    table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 50%;
+  text-align: center;
+  
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: center;
+  padding: 8px;
+}
+</style>
+	<script src="https://live.zwidgets.com/js-sdk/1.0.5/ZohoEmbededAppSDK.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+  </head>
+  <body>
+     Processing...Please wait for the success message...
+    <div class="alert alert-success" id="successMsg" role="alert" style="display:none;margin-top: 30px;text-align: center;margin-left:auto;margin-right:auto; width:500px;">
+    SUCCESS!!! Records created and calculated budgets are updated
+	</div>
+  
+  
+	<script type="text/javascript">
+    var EntityId;
+	var ChildDealId;
+	var Amount;
+	var Dealname;
+	var territoryID;
+	var accountID;
+	var areaID;
+	var categoryID;
+	var imputazioniRecords=[];
+	var richeisteRecordIds=[]
+	var richeistaRecords=[];
+    var otherDealDetails;
+   ZOHO.embeddedApp.on("PageLoad",function(data)
+   {
+    console.log('entity data',data);
+    EntityId=data.EntityId[0];
+	console.log('EntityId ',EntityId);
+	
+	ZOHO.CRM.API.getRecord({Entity:"Deals",RecordID:EntityId})
+    .then(function(data){
+    console.log(data);
+	var dealDetails=data.data[0];
+	otherDealDetails=dealDetails;
+    Amount=dealDetails.Amount;
+	Dealname=dealDetails.Deal_Name;
+	accountID = dealDetails.Account_Name.id;
+	console.log("accountID",accountID);
+	var Territory=dealDetails.Territory;
+	if(Territory!=null){
+	  Territory=Territory[0];
+	}
+	console.log('deal details',Amount, Dealname, Territory);
+	var areaDetails=dealDetails.Area_Affare;
+	if(areaDetails!=null){
+	  areaID=areaDetails.id;
+	}
+	var categoryDetails=dealDetails.Categoria_Affare;
+	if(categoryDetails!=null){
+	 categoryID = categoryDetails.id;
+	}
+	Budget_Outsourcing_Fieldupdate();
+	create_Imputazioni_di_Revenue();
+	create_child_deal();
+	var successAlert = document.getElementById('successMsg');
+               setTimeout(function(){
+				successAlert.style.display = 'block'; 
+				}, 6000);
+				setTimeout(function(){
+				ZOHO.CRM.UI.Popup.close();
+				}, 8000); 
+      })
+   })
+   ZOHO.embeddedApp.init();
+   
+   function Budget_Outsourcing_Fieldupdate()
+   {
+   var dealvalue=Amount;
+   IntercompanyValue=(15 / 100)* dealvalue;
+   IntercompanyValue= IntercompanyValue.toFixed(2);
+   EsternoValue=(70 / 100)* dealvalue;
+   EsternoValue= EsternoValue.toFixed(2);
+   var config={
+        Entity:"Deals",
+        APIData:{
+        "id": EntityId,
+        "Budget_di_Outsourcing_Intercompany":IntercompanyValue,
+        "Budget_di_Outsourcing_Non_Datrix": EsternoValue
+        },
+       Trigger:["workflow"]
+       }
+       ZOHO.CRM.API.updateRecord(config)
+        .then(function(data){
+          console.log(data)
+          })
+  
+   }
+   
+    function create_Imputazioni_di_Revenue(){
+	
+	var closingdate= otherDealDetails.Closing_Date;
+	console.log("closingdate"+closingdate);
+	closingdate = new Date(closingdate);
+	//closingdate=Date.parse(closingdate,);
+	console.log("closingdate"+closingdate);
+	var closingmonth=closingdate.getMonth()+1;
+	var closingday=closingdate.getDate(); 
+	console.log(closingmonth);
+	var yearArray=[];
+	var monthpercent=(closingmonth/12)*100;
+	console.log("monthpercent"+monthpercent);
+	var remainingMonthPercent=100-monthpercent;
+	console.log("remainingMonthPercent"+remainingMonthPercent);
+	var valueArray=[];
+	var value=(monthpercent / 100)* Amount;
+     value= value.toFixed(2);
+	 valueArray.push(value);
+	var nextvalue=(remainingMonthPercent / 100)* Amount;
+    nextvalue= nextvalue.toFixed(2);
+	valueArray.push(nextvalue);
+    var currentdate = new Date();
+			 var month='' + closingmonth;
+			 var day='' + closingday;
+			 var year=''+ currentdate.getFullYear();
+			 console.log(year);
+			 var nextyear=''+(currentdate.getFullYear() + 1);
+			 
+			 if (month.length < 2) {
+               month = '0' + month;
+		      }
+             if (day.length < 2) {
+              day = '0' + day;
+		     }
+			 
+    var datevalue=year+'-'+month+'-'+day;
+	var nextYearDateValue=nextyear+'-'+month+'-'+day;
+	console.log(datevalue+' and '+nextYearDateValue);
+	yearArray.push(datevalue);
+	yearArray.push(nextYearDateValue);
+	for(i=0;i<2;i++){
+	var recordData = {
+        "Name": Dealname+'-'+year,
+        "Valore_Revenue": valueArray[i],
+		"Data_Imputazione": yearArray[i],
+		"Azienda_di_Riferimento":territoryID,
+		"Affare_di_Riferimento":EntityId
+      }
+	  console.log(recordData);
+      ZOHO.CRM.API.insertRecord({Entity:"Imputazioni_di_Revenue",APIData:recordData,Trigger:["workflow"]}).then(function(data){
+	  console.log(data);
+	  });
+    }
+	 
+ }
+ 
+ function create_child_deal(){
+	
+    var Affare_del_Gruppo_BizDev= otherDealDetails.Affare_del_Gruppo_BizDev;
+	var Budget_di_Acquisto_Link= otherDealDetails.Budget_di_Acquisto_Link;
+	var Budget_di_Advertising= otherDealDetails.Budget_di_Advertising;
+	var Budget_di_Outsourcing_Intercompany= otherDealDetails.Budget_di_Outsourcing_Intercompany;
+	var Budget_di_Outsourcing_Non_Datrix= otherDealDetails.Budget_di_Outsourcing_Non_Datrix;
+	var Closed_Lost_Reason= otherDealDetails.Closed_Lost_Reason;
+	var Closing_Date= otherDealDetails.Closing_Date;
+	var Contact_Name= otherDealDetails.Contact_Name;
+	if(Contact_Name!=null){
+	  var Contact_id=Contact_Name.id;
+	}
+	var Description= otherDealDetails.Description;
+	var Fine_Contratto= otherDealDetails.Fine_Contratto;
+	var Google_Drive_Folder_Id= otherDealDetails.Google_Drive_Folder_Id;
+	var Lead_Source= otherDealDetails.Lead_Source;
+	var Maggiorazione_di_Prezzo= otherDealDetails.Maggiorazione_di_Prezzo;
+	var Prediction_Score= otherDealDetails.Prediction_Score;
+	var Sconto_Applicato= otherDealDetails.Sconto_Applicato;
+	var Stage= otherDealDetails.Stage;
+	var Tipo_Attivit= otherDealDetails.Tipo_Attivit;
+	var Tipo_di_Struttura= otherDealDetails.Tipo_di_Struttura;
+	var Rinnovo= otherDealDetails.Rinnovo;
+     var value=Amount;
+     value=(15/ 100)* value;
+	 //alert("value "+value);
+	 value= value.toFixed(2);	
+	var Dettagli= otherDealDetails.Dettagli;
+	if(Dettagli.length>0){
+	   Dettagli=Dettagli[0];
+	   var ServiziId = Dettagli.Servizi.id;
+	   var Quantit_o_Mensilit = Dettagli.Quantit_o_Mensilit;
+	   var Prezzo_Singolo = Dettagli.Prezzo_Singolo;
+	   var Note= Dettagli.Note;
+	   var Giornate = Dettagli.Giornate;
+	   var Decimali = Dettagli.Decimali;
+	}
+	
+	
+	
+	var recordData = {
+	    "Deal_Name":Dealname+'-'+'childDeal',
+		"Contact_Name":Contact_id,
+		"Dettagli": [
+                {
+                    "Servizi":ServiziId,
+					"Quantit_o_Mensilit":Quantit_o_Mensilit,
+					"Prezzo_Singolo":Prezzo_Singolo,
+					"Note":Note,
+					"Giornate":Giornate,
+					"Decimali":Decimali
+                }
+         ],
+		"Amount":value,
+		"Affare_Intercompany_Padre":EntityId,
+		"Account_Name":accountID,
+		"Area_Affare":areaID,
+		"Categoria_Affare":categoryID,
+		"Description":Description,
+		"Affare_del_Gruppo_BizDev":Affare_del_Gruppo_BizDev,
+		"Budget_di_Acquisto_Link":Budget_di_Acquisto_Link,
+		"Budget_di_Advertising":Budget_di_Advertising,
+		"Budget_di_Outsourcing_Intercompany":Budget_di_Outsourcing_Intercompany,
+		"Budget_di_Outsourcing_Non_Datrix":Budget_di_Outsourcing_Non_Datrix,
+		"Closed_Lost_Reason":Closed_Lost_Reason,
+		"Closing_Date":Closing_Date,
+		"Fine_Contratto":Fine_Contratto,
+		"Google_Drive_Folder_Id":Google_Drive_Folder_Id,
+		"Lead_Source":Lead_Source,
+		"Maggiorazione_di_Prezzo":Maggiorazione_di_Prezzo,
+		"Prediction_Score":Prediction_Score,
+		"Sconto_Applicato":Sconto_Applicato,
+		"Stage":Stage,
+		"Tipo_Attivit":Tipo_Attivit,
+		"Tipo_di_Struttura":Tipo_di_Struttura,
+		"Rinnovo":Rinnovo,
+		"Territory":[territoryID]
+      }
+	  console.log(recordData);
+      ZOHO.CRM.API.insertRecord({Entity:"Deals",APIData:recordData,Trigger:["workflow"]}).then(function(data){
+	  console.log(data);
+	  ChildDealId=data.data[0].details.id;
+	  console.log('ChildDealId',ChildDealId);
+	  });
+	  
+	 
+ }
+ 
+	</script>
+  </body>
+</html>

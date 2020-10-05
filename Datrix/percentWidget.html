@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+  <head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <style>
+    table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 50%;
+  text-align: center;
+  
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: center;
+  padding: 8px;
+}
+</style>
+	<script src="https://live.zwidgets.com/js-sdk/1.0.5/ZohoEmbededAppSDK.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+  </head>
+  <body>
+    <div style="margin-top: 30px;margin-left:30px;font-weight:bold;">
+	<label>What is the % of the child deal?</label>
+	</div> 
+	<div style="text-align:center">
+     <input type="number" id="percent" placeholder="type here">
+    </div>
+     <div style="margin-top: 30px;text-align: center">
+	<input type="submit" value="CREATE" id="createBtn" class="btn btn-warning" onclick="create_child_deal()">
+    </div>
+    <div class="alert alert-success" id="successMsg" role="alert" style="display:none;margin-top: 30px;text-align: center;margin-left:auto;margin-right:auto; width:500px;">
+    SUCCESS!!! Child Deal created
+	</div>
+	
+	
+	<script type="text/javascript">
+	var EntityId;
+	var ChildDealId;
+	var Amount;
+	var Dealname;
+	var territoryID;
+	var accountID;
+	var areaID;
+	var categoryID;
+	var imputazioniRecords=[];
+	var richeisteRecordIds=[]
+	var richeistaRecords=[];
+    var otherDealDetails;
+   ZOHO.embeddedApp.on("PageLoad",function(data)
+   {
+    console.log('entity data',data);
+    EntityId=data.EntityId[0];
+	console.log('EntityId ',EntityId);
+	
+	ZOHO.CRM.API.getRecord({Entity:"Deals",RecordID:EntityId})
+    .then(function(data){
+    //console.log(data);
+	var dealDetails=data.data[0];
+	otherDealDetails=dealDetails;
+    Amount=dealDetails.Amount;
+	Dealname=dealDetails.Deal_Name;
+	accountID = dealDetails.Account_Name.id;
+	console.log("accountID",accountID);
+	var Territory=dealDetails.Territory[0];
+	console.log('deal details',Amount, Dealname, Territory);
+	var areaDetails=dealDetails.Area_Affare;
+	if(areaDetails!=null){
+	  areaID=areaDetails.id;
+	}
+	//console.log("areaID",areaID);
+	var categoryDetails=dealDetails.Categoria_Affare;
+	if(categoryDetails!=null){
+	 categoryID = categoryDetails.id;
+	}
+	
+	//console.log("categoryID",categoryID);
+	
+	ZOHO.CRM.API.searchRecord({Entity:"Company_Datrix",Type:"word",Query:Territory})
+    .then(function(data){
+   // console.log(data);
+	var territoryDetails=data.data[0];
+    territoryID=territoryDetails.id;
+	console.log('territoryID',territoryID);
+      })
+	  
+	/* ZOHO.CRM.API.searchRecord({Entity:"Accounts",Type:"word",Query:Territory})
+    .then(function(data){
+    //console.log(data);
+	var AccountDetails=data.data[0];
+	accountID=AccountDetails.id
+	//console.log('Account details by territoryDetails',accountID);
+      })*/
+	  
+	  
+	  ZOHO.CRM.API.getRelatedRecords({Entity:"Deals",RecordID:EntityId,RelatedList:"Imputazioni_di_Revenue",page:1,per_page:200})
+     .then(function(data){
+      //console.log(data);
+	  var imputazioniDetails=data.data;
+	  //console.log("imputazioni length is ",imputazioniDetails.length);
+	  for(i=0;i<imputazioniDetails.length;i++){
+	    var record= imputazioniDetails[i];
+		imputazioniRecords.push(record);
+		//console.log("imputazioni records id "+record.id);
+	  }
+	 // console.log("records array size ",imputazioniRecords.length)
+      })
+	  
+	  
+	 ZOHO.CRM.API.getRelatedRecords({Entity:"Deals",RecordID:EntityId,RelatedList:"Fatture_di_Riferimento",page:1,per_page:200})
+     .then(function(data){
+      //console.log(data);
+	  var richeistaDetails=data.data;
+	  for(i=0;i<richeistaDetails.length;i++){
+	    var record= richeistaDetails[i];
+		console.log("richeista records id "+record.id);
+        richeisteRecordIds.push(record.id);
+	     ZOHO.CRM.API.getRecord({Entity:"Richieste_di_Fattura",RecordID:record.id})
+         .then(function(data){
+         console.log(data);
+		 var richeistaRecord= data.data[0];
+		 console.log("richeistaRecord "+richeistaRecord)
+		 richeistaRecords.push(richeistaRecord);
+		 console.log("richeistaRecords.length "+richeistaRecords.length);
+	    })
+		}
+	 // console.log("richeistaRecords.length "+richeistaRecords.length);
+      })
+
+      })
+   })
+   ZOHO.embeddedApp.init();
+   
+  function create_child_deal(){
+    var createBtn = document.getElementById('createBtn');
+	var successAlert = document.getElementById('successMsg');
+	createBtn.disabled = true;
+	
+    var Affare_del_Gruppo_BizDev= otherDealDetails.Affare_del_Gruppo_BizDev;
+	var Budget_di_Acquisto_Link= otherDealDetails.Budget_di_Acquisto_Link;
+	var Budget_di_Advertising= otherDealDetails.Budget_di_Advertising;
+	var Budget_di_Outsourcing_Intercompany= otherDealDetails.Budget_di_Outsourcing_Intercompany;
+	var Budget_di_Outsourcing_Non_Datrix= otherDealDetails.Budget_di_Outsourcing_Non_Datrix;
+	var Closed_Lost_Reason= otherDealDetails.Closed_Lost_Reason;
+	var Closing_Date= otherDealDetails.Closing_Date;
+	var Contact_Name= otherDealDetails.Contact_Name;
+	if(Contact_Name!=null){
+	  var Contact_id=Contact_Name.id;
+	}
+	var Description= otherDealDetails.Description;
+	var Fine_Contratto= otherDealDetails.Fine_Contratto;
+	var Google_Drive_Folder_Id= otherDealDetails.Google_Drive_Folder_Id;
+	var Lead_Source= otherDealDetails.Lead_Source;
+	var Maggiorazione_di_Prezzo= otherDealDetails.Maggiorazione_di_Prezzo;
+	var Prediction_Score= otherDealDetails.Prediction_Score;
+	var Sconto_Applicato= otherDealDetails.Sconto_Applicato;
+	var Stage= otherDealDetails.Stage;
+	var Tipo_Attivit= otherDealDetails.Tipo_Attivit;
+	var Tipo_di_Struttura= otherDealDetails.Tipo_di_Struttura;
+	var Rinnovo= otherDealDetails.Rinnovo;
+	var percent= document.getElementById("percent").value;
+     var value=Amount;
+     value=(percent/ 100)* value;
+	 //alert("value "+value);
+	 value= value.toFixed(2);	
+	var Dettagli= otherDealDetails.Dettagli;
+	if(Dettagli.length>0){
+	   Dettagli=Dettagli[0];
+	   var ServiziId = Dettagli.Servizi.id;
+	   var Quantit_o_Mensilit = Dettagli.Quantit_o_Mensilit;
+	   var Prezzo_Singolo = Dettagli.Prezzo_Singolo;
+	   var Note= Dettagli.Note;
+	   var Giornate = Dettagli.Giornate;
+	   var Decimali = Dettagli.Decimali;
+	}
+	
+	
+	
+	var recordData = {
+	    "Deal_Name":Dealname+'-'+'childDeal',
+		"Contact_Name":Contact_id,
+		"Dettagli": [
+                {
+                    "Servizi":ServiziId,
+					"Quantit_o_Mensilit":Quantit_o_Mensilit,
+					"Prezzo_Singolo":Prezzo_Singolo,
+					"Note":Note,
+					"Giornate":Giornate,
+					"Decimali":Decimali
+                }
+         ],
+		"Amount":value,
+		"Affare_Intercompany_Padre":EntityId,
+		"Account_Name":accountID,
+		"Area_Affare":areaID,
+		"Categoria_Affare":categoryID,
+		"Description":Description,
+		"Affare_del_Gruppo_BizDev":Affare_del_Gruppo_BizDev,
+		"Budget_di_Acquisto_Link":Budget_di_Acquisto_Link,
+		"Budget_di_Advertising":Budget_di_Advertising,
+		"Budget_di_Outsourcing_Intercompany":Budget_di_Outsourcing_Intercompany,
+		"Budget_di_Outsourcing_Non_Datrix":Budget_di_Outsourcing_Non_Datrix,
+		"Closed_Lost_Reason":Closed_Lost_Reason,
+		"Closing_Date":Closing_Date,
+		"Fine_Contratto":Fine_Contratto,
+		"Google_Drive_Folder_Id":Google_Drive_Folder_Id,
+		"Lead_Source":Lead_Source,
+		"Maggiorazione_di_Prezzo":Maggiorazione_di_Prezzo,
+		"Prediction_Score":Prediction_Score,
+		"Sconto_Applicato":Sconto_Applicato,
+		"Stage":Stage,
+		"Tipo_Attivit":Tipo_Attivit,
+		"Tipo_di_Struttura":Tipo_di_Struttura,
+		"Rinnovo":Rinnovo,
+		"territories":[territoryID]
+      }
+	  console.log(recordData);
+      ZOHO.CRM.API.insertRecord({Entity:"Deals",APIData:recordData,Trigger:["workflow"]}).then(function(data){
+	  console.log(data);
+	  ChildDealId=data.data[0].details.id;
+	  console.log('ChildDealId',ChildDealId);
+	  for(i=0;i<imputazioniRecords.length;i++){
+	  create_Imputazioni_di_Revenue(imputazioniRecords[i]);
+	  }
+
+	  for(i=0;i<richeistaRecords.length;i++){
+	  create_Richiesta_Di_Fattura(richeistaRecords[i]);
+	  }
+	            setTimeout(function(){
+				successAlert.style.display = 'block'; 
+				}, 6000); 
+				setTimeout(function(){
+				ZOHO.CRM.UI.Popup.close();
+				}, 8000); 
+	  });
+	  
+	 
+ }
+ 
+  function create_Imputazioni_di_Revenue(record){
+  console.log("creating Imputazioni_di_Revenue records"+record);
+  var percent= document.getElementById("percent").value;
+  var name=record.Name;
+  var Valore_Revenue=record.Valore_Revenue;
+  Valore_Revenue=(percent/ 100)* Valore_Revenue;
+  Valore_Revenue= Valore_Revenue.toFixed(2);
+  var Data_Imputazione=record.Data_Imputazione;
+  var Costi_Esterni_Imputabili=record.Costi_Esterni_Imputabili;
+  var Azienda_di_Riferimento=record.Azienda_di_Riferimento;
+  if(Azienda_di_Riferimento!=null){
+  Azienda_di_Riferimento=Azienda_di_Riferimento.id;
+  }
+  var Affare_di_Riferimento=ChildDealId;
+ 
+	var recordData = {
+        "Name": name+'-child',
+        "Valore_Revenue": Valore_Revenue,
+		"Data_Imputazione": Data_Imputazione,
+		"Costi_Esterni_Imputabili":Costi_Esterni_Imputabili,
+		"Azienda_di_Riferimento":Azienda_di_Riferimento,
+		"Affare_di_Riferimento":ChildDealId
+      }
+	  console.log(recordData);
+      ZOHO.CRM.API.insertRecord({Entity:"Imputazioni_di_Revenue",APIData:recordData,Trigger:["workflow"]}).then(function(data){
+	  console.log(data);
+	  });
+	 
+    }
+  
+  
+  function create_Richiesta_Di_Fattura(record){
+  	 
+  console.log("creating Richiesta_Di_Fattura records"+record);
+  var percent= document.getElementById("percent").value;
+    var name= record.Name;
+	console.log("name"+name);
+	var Composizione_Fattura= record.Composizione_Fattura[0];
+	var Voce= Composizione_Fattura.Voce;
+	var Prezzo_Unitario= Composizione_Fattura.Prezzo_Unitario;
+	Prezzo_Unitario=(percent/ 100)* Prezzo_Unitario;
+	Prezzo_Unitario= Prezzo_Unitario.toFixed(2);
+	var Quantit= Composizione_Fattura.Quantit;
+	console.log("Quantit "+Quantit);
+	var Area_della_Voce= Composizione_Fattura.Area_della_Voce.id;
+	var Categoria_della_Voce= Composizione_Fattura.Categoria_della_Voce.id;
+	var Scadenza_Pagamento= record.Scadenza_Pagamento;
+	var Data_Emissione_Fattura= record.Data_Emissione_Fattura;
+	var Fatturabile_da= record.Fatturabile_da.id;
+	var Azienda_a_cui_Fatturare= record.Azienda_a_cui_Fatturare.id;
+	var Affare_di_Riferimento= ChildDealId;
+	var recordData = {
+	    "Name":name+'-child',
+		"Composizione_Fattura": [
+                {
+				    "Voce": Voce,
+					"Prezzo_Unitario":Prezzo_Unitario,
+                    "Quantit": Quantit,
+					"Area_della_Voce":Area_della_Voce,
+		            "Categoria_della_Voce":Categoria_della_Voce
+                
+                }],
+		
+		"Scadenza_Pagamento":Scadenza_Pagamento,
+		"Data_Emissione_Fattura": Data_Emissione_Fattura,
+		"Fatturabile_da":Fatturabile_da,
+		"Azienda_a_cui_Fatturare":Azienda_a_cui_Fatturare,
+		"Affare_di_Riferimento":ChildDealId
+		
+      }
+	  console.log(recordData);
+      ZOHO.CRM.API.insertRecord({Entity:"Richieste_di_Fattura",APIData:recordData,Trigger:["workflow"]}).then(function(data){
+	  console.log(data);
+	  });
+	 
+ }
+ 
+function calculatePercentage(){
+      var percent= document.getElementById("percent").value;
+	  var number = Amount;
+ 
+
+var percentToGet = percent;
+//var percentAsDecimal = (percentToGet / 100);
+//var percentValue = percentAsDecimal * number;
+var percentValue=(percentToGet / 100)* number;
+alert(percentToGet + "% of " + number + " is " + percentValue);
+create_child_deal(percentValue, otherDealDetails);	
+
+}
+
+	 
+	</script>
+  </body>
+</html>
