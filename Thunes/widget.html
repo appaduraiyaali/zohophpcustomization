@@ -1,0 +1,739 @@
+<html>
+        <head>
+            <style>
+            .slt
+            {
+                padding-top: 15px;
+                font-size: 17px;
+                font-weight: bolder;
+             }
+        .title{
+                width: 80%;
+                text-align: center;
+                background-color: lightgrey;
+                border-radius: 13px;
+                }
+			table {
+                table-layout: fixed; 
+  
+               }	
+			td, th {
+                 text-align: center;
+            }
+            </style>
+                <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet">
+            <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+            <script src="https://live.zwidgets.com/js-sdk/1.0.5/ZohoEmbededAppSDK.min.js"></script>
+        </head>
+        <body>
+            <div id=home class ="slt">
+                <div id ="year" style="padding-left:26%"><label>Year:</label>
+                <select id="Year_list" onchange='Table()'>
+                </select>
+                </div>
+                <div  id="Performance_heading"></div>
+                <div id="Performance_div" style="display:none">
+                     <table class="table table-bordered" style="width:80%;text-align:right;" id="Performance_table">
+                         <tr>
+                         <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">USD</th>
+                         <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Q1</th>
+                         <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Q2</th>
+                         <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Q3</th>
+                         <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Q4</th>
+                         <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Total</th>
+                         </tr>
+                         <tr>
+                             <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Principal</th>
+                             <td id="Per_Principle_Q1" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Per_Principle_Q2" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Per_Principle_Q3" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Per_Principle_Q4" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Per_Principle_tot"style="padding:0.10rem;border: 1px solid #444;"></td>
+                         </tr>
+                         <tr>
+                             <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Revenue</th>
+                             <td id="Per_Revenue_Q1" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Per_Revenue_Q2" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Per_Revenue_Q3" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Per_Revenue_Q4" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Per_Revenue_tot"style="padding:0.10rem;border: 1px solid #444;"></td>
+                         </tr>
+                         <tr>
+                             <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Margin</th>
+                             <td id="Per_Margin_Q1" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Per_Margin_Q2" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Per_Margin_Q3" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Per_Margin_Q4" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Per_Margin_tot"style="padding:0.10rem;border: 1px solid #444;"></td>
+                         </tr>
+                     </table>
+                     </div>
+                <div id="Target_heading"></div>
+                <div id="Target_div" style="display:none">
+                    <table class="table table-bordered" style="width:80%;text-align:center;" id="Target_table">
+                         <tr>
+                         <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">USD</th>
+                         <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Q1</th>
+                         <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Q2</th>
+                         <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Q3</th>
+                         <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Q4</th>
+                         <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Total</th>
+                         </tr>
+                         <tr>
+                             <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Principal</th>
+                             <td id="Tar_Principle_Q1" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Tar_Principle_Q2" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Tar_Principle_Q3" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Tar_Principle_Q4" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Tar_Principle_tot" style="padding:0.10rem;border: 1px solid #444;"></td>
+                         </tr>
+                         <tr>
+                             <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Revenue</th>
+                             <td id="Tar_Revenue_Q1" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Tar_Revenue_Q2" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Tar_Revenue_Q3" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Tar_Revenue_Q4" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Tar_Revenue_tot" style="padding:0.10rem;border: 1px solid #444;"></td>
+                         </tr>
+                         <tr>
+                             <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Margin</th>
+                             <td id="Tar_Margin_Q1" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Tar_Margin_Q2" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Tar_Margin_Q3" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Tar_Margin_Q4" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Tar_Margin_tot" style="padding:0.10rem;border: 1px solid #444;"></td>
+                         </tr>
+                     </table>
+                     </div>
+                <div id="Forecast_heading"></div>
+                <div id="Forecast_div" style="display:none">
+                    <table class="table table-bordered" style="width:80%;text-align:right;" id="Forecast_table">
+                         <tr>
+                         <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">USD</th>
+                         <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Q1</th>
+                         <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Q2</th>
+                         <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Q3</th>
+                         <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Q4</th>
+                         <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Total</th>
+                         </tr>
+                         <tr>
+                             <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Principal</th>
+                             <td id="Fore_Principle_Q1" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Fore_Principle_Q2" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Fore_Principle_Q3" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Fore_Principle_Q4" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Fore_Principle_tot" style="padding:0.10rem;border: 1px solid #444;"></td>
+                         </tr>
+                         <tr>
+                             <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Revenue</th>
+                             <td id="Fore_Revenue_Q1" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Fore_Revenue_Q2" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Fore_Revenue_Q3" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Fore_Revenue_Q4" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Fore_Revenue_tot" style="padding:0.10rem;border: 1px solid #444;"></td>
+                         </tr>
+                         <tr>
+                             <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Margin</th>
+                             <td id="Fore_Margin_Q1" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Fore_Margin_Q2" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Fore_Margin_Q3" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Fore_Margin_Q4" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="Fore_Margin_tot" style="padding:0.10rem;border: 1px solid #444;"></td>
+                         </tr>
+                     </table>
+                     </div>
+                <div id="Next_Forecast_heading"></div>
+                <div id="Next_Forecast_div" style="display:none">
+                    <table class="table table-bordered" style="width:80%;text-align:right;" id="Next_Forecast_table">
+                         <tr>
+                         <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">USD</th>
+                         <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Q1</th>
+                         <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Q2</th>
+                         <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Q3</th>
+                         <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Q4</th>
+                         <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Total</th>
+                         </tr>
+                         <tr>
+                             <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Principal</th>
+                             <td id="NextFore_Principle_Q1" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="NextFore_Principle_Q2" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="NextFore_Principle_Q3" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="NextFore_Principle_Q4" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="NextFore_Principle_tot" style="padding:0.10rem;border: 1px solid #444;"></td>
+                         </tr>
+                         <tr>
+                             <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Revenue</th>
+                             <td id="NextFore_Revenue_Q1" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="NextFore_Revenue_Q2" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="NextFore_Revenue_Q3" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="NextFore_Revenue_Q4" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="NextFore_Revenue_tot" style="padding:0.10rem;border: 1px solid #444;"></td>
+                         </tr>
+                         <tr>
+                             <th style="padding:0.10rem;border: 1px solid #444;text-align:center;">Margin</th>
+                             <td id="NextFore_Margin_Q1" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="NextFore_Margin_Q2" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="NextFore_Margin_Q3" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="NextFore_Margin_Q4" style="padding:0.10rem;border: 1px solid #444;"></td>
+                             <td id="NextFore_Margin_tot" style="padding:0.10rem;border: 1px solid #444;"></td>
+                         </tr>
+                     </table>
+                     </div>
+            </div>
+            <script type="text/javascript">
+            const formatter = new Intl.NumberFormat('en-US', {
+                                     currency: 'USD',
+                                      minimumFractionDigits: 0
+                                    })
+    ZOHO.embeddedApp.on("PageLoad",function(data)
+     {
+         var Year = new Date();
+         Year=Year.getFullYear();
+         performance={};
+         Target={};
+         Forecast={};
+         year_lists=[];
+        account_id=data.EntityId;
+        ZOHO.CRM.API.getRelatedRecords({Entity:"Accounts",RecordID:account_id,RelatedList:"Accounts_Target",page:1,per_page:200})
+    .then(function(response){
+        for (each_response of response.data) {
+            temp_obj={};
+            temp_obj2={};
+            temp_obj["Margin"]=each_response.Margin;
+            temp_obj["Principle"]=each_response.Principle;
+            temp_obj["Revenue"]=each_response.Revenue;
+            temp_obj2[each_response.PeriodEntity]=temp_obj;
+            if(!year_lists.includes(each_response.Year))
+            {
+            year_lists.push(each_response.Year);
+            }
+            if(each_response.Type=="Performance")
+            {
+                if(performance.hasOwnProperty(each_response.Year))
+                {
+                    temp_performance={};
+                    temp_performance=performance[each_response.Year];
+                    Object.assign(temp_performance, temp_obj2);
+                    performance[each_response.Year]=temp_performance; 
+                } 	
+                else
+                {
+                    performance[each_response.Year]=temp_obj2;    
+                }
+            }
+            else if(each_response.Type=="Target")
+            {
+                if(Target.hasOwnProperty(each_response.Year))
+                {
+                    temp_target={};
+                    temp_target=Target[each_response.Year];
+                    Object.assign(temp_target, temp_obj2);
+                    Target[each_response.Year]=temp_target;
+                }
+                else
+                {
+                    Target[each_response.Year]=temp_obj2;
+                }
+                
+            }
+            else if(each_response.Type=="Forecast")
+            {
+                if(Forecast.hasOwnProperty(each_response.Year))
+                {
+                    temp_forecast={};
+                    temp_forecast=Forecast[each_response.Year];
+                    Object.assign(temp_forecast, temp_obj2);
+                    Forecast[each_response.Year]=temp_forecast;
+                }
+                else
+                {
+                    Forecast[each_response.Year]=temp_obj2;
+                }
+            }
+    }
+         var year_select=document.getElementById("Year_list");
+		 console.log(year_lists);
+         year_lists.forEach(function(year)
+         {
+             var select_option=document.createElement("option");
+                if(Year==year)
+                {
+                    select_option.selected =true;
+                }
+    		    select_option.text =year;
+    		    select_option.value =year;
+    		    year_select.add(select_option,year_select[1]);
+         })
+		 sortSelect();
+         Table();
+         console.log(performance);
+         console.log(Target);
+         console.log(Forecast);
+		 
+    })
+    });
+	
+	function sortSelect() {
+	var defaultIndex;
+	var today = new Date();
+	var presentYear=today.getFullYear();
+	var currentYear='' + (today.getFullYear());
+	var selElem= document.getElementById("Year_list");
+	var tmpAry = new Array();
+    for (var i=0;i<selElem.options.length;i++) {
+        tmpAry[i] = new Array();
+        tmpAry[i][0] = selElem.options[i].text;
+        tmpAry[i][1] = selElem.options[i].value;
+    }
+    tmpAry.sort();
+    while (selElem.options.length > 0) {
+        selElem.options[0] = null;
+    }
+    for (var i=0;i<tmpAry.length;i++) {
+        var op = new Option(tmpAry[i][0], tmpAry[i][1]);
+        selElem.options[i] = op;
+		if (selElem.options[i].value==currentYear){
+		console.log("current year "+currentYear);
+	      defaultIndex=i;
+		}
+		}
+		if(defaultIndex==null){
+		  defaultIndex=tmpAry.length-1;
+		}
+	
+	selElem.selectedIndex = defaultIndex;
+    return;
+	}
+	
+	
+    function Table()
+    {
+        if(document.getElementById("Year_list").value!="")
+        {
+            value=document.getElementById("Year_list").value;
+            previous_performance=performance[parseInt(value)-1];
+            tables=document.getElementById("Performance_table");
+            for (let row of tables.rows) 
+            {
+                let tot=0;
+                for(let cell of row.cells) 
+                {
+                    if(cell.id)
+                    {
+                        condition=cell.id.split("_")[1];
+                        quarter=cell.id.split("_")[2];
+                        if(quarter!="tot")
+                        {
+                            if(condition=="Principle")
+                            {
+                                if(previous_performance)
+                                {
+                                if(previous_performance[quarter])
+                                {
+                                    if(previous_performance[quarter].Principle)
+                                    {
+                                        document.getElementById(cell.id).innerHTML=formatter.format(Math.round(previous_performance[quarter].Principle));
+                                        tot=tot+Math.round(previous_performance[quarter].Principle);
+                                    }
+                                    else
+                                    {
+                                        document.getElementById(cell.id).innerHTML=0;
+                                    }
+                                }
+                                else
+                                {
+                                    document.getElementById(cell.id).innerHTML=0;
+                                }
+                                }
+                                else
+                                {
+                                    document.getElementById(cell.id).innerHTML=0;
+                                }
+                                }
+                            else if(condition=="Revenue")
+                            {
+                                if(previous_performance)
+                                {
+                                if(previous_performance[quarter])
+                                {
+                                    if(previous_performance[quarter].Revenue)
+                                    {
+                                        document.getElementById(cell.id).innerHTML=formatter.format(Math.round(previous_performance[quarter].Revenue));
+                                        tot=tot+Math.round(previous_performance[quarter].Revenue);
+                                    }
+                                    else
+                                    {
+                                        document.getElementById(cell.id).innerHTML=0;
+                                    }
+                                }
+                                else
+                                {
+                                    document.getElementById(cell.id).innerHTML=0;
+                                }
+                                }
+                                else
+                                {
+                                    document.getElementById(cell.id).innerHTML=0;
+                                }
+                            }
+                            else if(condition=="Margin")
+                            {
+                                if(previous_performance)
+                                {
+                                if(previous_performance[quarter])
+                                {
+                                    if(previous_performance[quarter].Margin)
+                                    {
+                                        document.getElementById(cell.id).innerHTML=formatter.format(Math.round(previous_performance[quarter].Margin));
+                                        tot=tot+Math.round(previous_performance[quarter].Margin);
+                                    }
+                                    else
+                                    {
+                                        document.getElementById(cell.id).innerHTML=0;
+                                    }
+                                }
+                                else
+                                {
+                                    document.getElementById(cell.id).innerHTML=0;
+                                }
+                                }
+                                else
+                                {
+                                    document.getElementById(cell.id).innerHTML=0;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            document.getElementById(cell.id).innerHTML=formatter.format(tot);
+                        }
+                    }
+                }
+            }
+            
+            
+            
+            Current_Target=Target[value];
+            tables=document.getElementById("Target_table");
+            for (let row of tables.rows) 
+            {
+                let tot=0;
+                for(let cell of row.cells) 
+                {
+                    if(cell.id)
+                    {
+                        condition=cell.id.split("_")[1];
+                        quarter=cell.id.split("_")[2];
+                        if(quarter!="tot")
+                        {
+                            if(condition=="Principle")
+                            {
+                                if(Current_Target)
+                                {
+                                if(Current_Target[quarter])
+                                {
+                                    if(Current_Target[quarter].Principle)
+                                    {
+                                        document.getElementById(cell.id).innerHTML=formatter.format(Math.round(Current_Target[quarter].Principle));
+                                        tot=tot+Math.round(Current_Target[quarter].Principle);
+                                    }
+                                    else
+                                    {
+                                        document.getElementById(cell.id).innerHTML=0;
+                                    }
+                                }
+                                else
+                                {
+                                    document.getElementById(cell.id).innerHTML=0;
+                                }
+                                }
+                                else
+                                {
+                                    document.getElementById(cell.id).innerHTML=0;
+                                }
+                                }
+                            else if(condition=="Revenue")
+                            {
+                                if(Current_Target)
+                                {
+                                if(Current_Target[quarter])
+                                {
+                                    if(Current_Target[quarter].Revenue)
+                                    {
+                                        document.getElementById(cell.id).innerHTML=formatter.format(Math.round(Current_Target[quarter].Revenue));
+                                        tot=tot+Math.round(Current_Target[quarter].Revenue);
+                                    }
+                                    else
+                                    {
+                                        document.getElementById(cell.id).innerHTML=0;
+                                    }
+                                }
+                                else
+                                {
+                                    document.getElementById(cell.id).innerHTML=0;
+                                }
+                                }
+                                else
+                                {
+                                    document.getElementById(cell.id).innerHTML=0;
+                                }
+                            }
+                            else if(condition=="Margin")
+                            {
+                                if(Current_Target)
+                                {
+                                if(Current_Target[quarter])
+                                {
+                                    if(Current_Target[quarter].Margin)
+                                    {
+                                        document.getElementById(cell.id).innerHTML=formatter.format(Math.round(Current_Target[quarter].Margin));
+                                        tot=tot+Math.round(Current_Target[quarter].Margin);
+                                    }
+                                    else
+                                    {
+                                        document.getElementById(cell.id).innerHTML=0;
+                                    }
+                                }
+                                else
+                                {
+                                    document.getElementById(cell.id).innerHTML=0;
+                                }
+                                }
+                                else
+                                {
+                                    document.getElementById(cell.id).innerHTML=0;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            document.getElementById(cell.id).innerHTML=formatter.format(tot);
+                        }
+                    }
+                }
+            }
+            
+            
+            Current_forecast=Forecast[value];
+            tables=document.getElementById("Forecast_table");
+            for (let row of tables.rows) 
+            {
+                let tot=0;
+                for(let cell of row.cells) 
+                {
+                    if(cell.id)
+                    {
+                        condition=cell.id.split("_")[1];
+                        quarter=cell.id.split("_")[2];
+                        if(quarter!="tot")
+                        {
+                            if(condition=="Principle")
+                            {
+                                if(Current_forecast)
+                                {
+                                if(Current_forecast[quarter])
+                                {
+                                    if(Current_forecast[quarter].Principle)
+                                    {
+                                        document.getElementById(cell.id).innerHTML=formatter.format(Math.round(Current_forecast[quarter].Principle));
+                                        tot=tot+Math.round(Current_forecast[quarter].Principle);
+                                    }
+                                    else
+                                    {
+                                        document.getElementById(cell.id).innerHTML=0;
+                                    }
+                                }
+                                else
+                                {
+                                    document.getElementById(cell.id).innerHTML=0;
+                                }
+                                }
+                                else
+                                {
+                                    document.getElementById(cell.id).innerHTML=0;
+                                }
+                                }
+                            else if(condition=="Revenue")
+                            {
+                                if(Current_forecast)
+                                {
+                                if(Current_forecast[quarter])
+                                {
+                                    if(Current_forecast[quarter].Revenue)
+                                    {
+                                        document.getElementById(cell.id).innerHTML=formatter.format(Math.round(Current_forecast[quarter].Revenue));
+                                        tot=tot+Math.round(Current_forecast[quarter].Revenue);
+                                    }
+                                    else
+                                    {
+                                        document.getElementById(cell.id).innerHTML=0;
+                                    }
+                                }
+                                else
+                                {
+                                    document.getElementById(cell.id).innerHTML=0;
+                                }
+                                }
+                                else
+                                {
+                                    document.getElementById(cell.id).innerHTML=0;
+                                }
+                            }
+                            else if(condition=="Margin")
+                            {
+                                if(Current_forecast)
+                                {
+                                if(Current_forecast[quarter])
+                                {
+                                    if(Current_forecast[quarter].Margin)
+                                    {
+                                        document.getElementById(cell.id).innerHTML=formatter.format(Math.round(Current_forecast[quarter].Margin));
+                                        tot=tot+Math.round(Current_forecast[quarter].Margin);
+                                    }
+                                    else
+                                    {
+                                        document.getElementById(cell.id).innerHTML=0;
+                                    }
+                                }
+                                else
+                                {
+                                    document.getElementById(cell.id).innerHTML=0;
+                                }
+                                }
+                                else
+                                {
+                                    document.getElementById(cell.id).innerHTML=0;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            document.getElementById(cell.id).innerHTML=formatter.format(tot);
+                        }
+                    }
+                }
+            }
+            Next_forecast=Forecast[parseInt(value)+1];
+            tables=document.getElementById("Next_Forecast_table");
+            for (let row of tables.rows) 
+            {
+                let tot=0;
+                for(let cell of row.cells) 
+                {
+                    if(cell.id)
+                    {
+                        condition=cell.id.split("_")[1];
+                        quarter=cell.id.split("_")[2];
+                        if(quarter!="tot")
+                        {
+                            if(condition=="Principle")
+                            {
+                                if(Next_forecast)
+                                {
+                                if(Next_forecast[quarter])
+                                {
+                                    if(Next_forecast[quarter].Principle)
+                                    {
+                                        document.getElementById(cell.id).innerHTML=formatter.format(Math.round(Next_forecast[quarter].Principle));
+                                        tot=tot+Math.round(Next_forecast[quarter].Principle);
+                                    }
+                                    else
+                                    {
+                                        document.getElementById(cell.id).innerHTML=0;
+                                    }
+                                }
+                                else
+                                {
+                                    document.getElementById(cell.id).innerHTML=0;
+                                }
+                                }
+                                else
+                                {
+                                    document.getElementById(cell.id).innerHTML=0;
+                                }
+                                }
+                            else if(condition=="Revenue")
+                            {
+                                if(Next_forecast)
+                                {
+                                if(Next_forecast[quarter])
+                                {
+                                    if(Next_forecast[quarter].Revenue)
+                                    {
+                                        document.getElementById(cell.id).innerHTML=formatter.format(Math.round(Next_forecast[quarter].Revenue));
+                                        tot=tot+Math.round(Next_forecast[quarter].Revenue);
+                                    }
+                                    else
+                                    {
+                                        document.getElementById(cell.id).innerHTML=0;
+                                    }
+                                }
+                                else
+                                {
+                                    document.getElementById(cell.id).innerHTML=0;
+                                }
+                                }
+                                else
+                                {
+                                    document.getElementById(cell.id).innerHTML=0;
+                                }
+                            }
+                            else if(condition=="Margin")
+                            {
+                                if(Next_forecast)
+                                {
+                                if(Next_forecast[quarter])
+                                {
+                                    if(Next_forecast[quarter].Margin)
+                                    {
+                                        document.getElementById(cell.id).innerHTML=formatter.format(Math.round(Next_forecast[quarter].Margin));
+                                        tot=tot+Math.round(Next_forecast[quarter].Margin);
+                                    }
+                                    else
+                                    {
+                                        document.getElementById(cell.id).innerHTML=0;
+                                    }
+                                }
+                                else
+                                {
+                                    document.getElementById(cell.id).innerHTML=0;
+                                }
+                                }
+                                else
+                                {
+                                    document.getElementById(cell.id).innerHTML=0;
+                                }
+                            }
+                        }
+                        else
+                        {
+							console.log("Total value is" +Math.round(tot));
+                            document.getElementById(cell.id).innerHTML=formatter.format(tot);
+                        }
+                    }
+                }
+            }
+            
+            
+            
+            document.getElementById("Performance_heading").innerHTML=(parseInt(value)-1)+" Performance";
+            document.getElementById("Target_heading").innerHTML=value+" Target";
+            document.getElementById("Forecast_heading").innerHTML=value+" Forecast";
+            document.getElementById("Next_Forecast_heading").innerHTML=(parseInt(value)+1)+" Forecast";
+            
+            document.getElementById("Performance_heading").className="title";
+            document.getElementById("Target_heading").className="title";
+            document.getElementById("Forecast_heading").className="title";
+            document.getElementById("Next_Forecast_heading").className="title";
+            
+            
+            document.getElementById("Performance_div").style.display="block";
+            document.getElementById("Target_div").style.display="block";
+            document.getElementById("Forecast_div").style.display="block";
+            document.getElementById("Next_Forecast_div").style.display="block";
+        }
+    }
+    ZOHO.embeddedApp.init();
+        </script>
+        </body>
+    </html>
