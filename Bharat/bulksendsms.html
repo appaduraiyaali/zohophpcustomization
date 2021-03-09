@@ -1,0 +1,87 @@
+<html>
+<head>
+<style>
+.container-fluid{
+    background-color: #fdf9f9ba;
+    height:700px;
+}
+.container-fluid_1{
+    background-color: #fdf9f942;
+    height:700px;
+}
+.contact{
+    padding: 5%;
+    height: 600px;
+}
+.button_style{
+    position: relative;
+    left: 53px;
+    top: 5px;
+    border-right-width: 11px;
+    border-left-width: -10;
+    padding-right: 0px;
+    padding-left: 11px;
+    right: -20;
+    margin-right: 32px;
+}
+</style>
+        <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+        <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <script src="https://live.zwidgets.com/js-sdk/1.0.5/ZohoEmbededAppSDK.min.js"></script> -->
+		 <script src = "https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>		
+        <script src="https://live.zwidgets.com/js-sdk/1.0.5/ZohoEmbededAppSDK.min.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
+        <script src="bulksendsms.js"></script>
+</head>
+<body>
+    <div id= Createnotewindow>
+        <div class="container-fluid" >
+        <div class="container contact">
+        <div class="col-md-9" style="background-color: #fdf9f9ba;">
+        <form>
+        <div class="contact-form">
+        <div>
+        </div>
+        <div id ="show_lists" >
+        <label for="exampleFormControlSelect2" >Choose a Template</label>
+        <select id="template_option" class="selectpicker" data-title="Please Select"></select>                                
+        </div>
+        <div class="form-group" style="margin-left: -20" >
+        <label class="control-label col-sm-2" style="height: 25px;max-width: 40%;margin-bottom: 1px;margin-top: -2;">Message Content:</label>
+        <div class="col-sm-10">
+        <textarea  class='form-group' style ='width:100%;height: 30%;' id ="message"></textarea>
+        </div>
+        </div>
+        <div class="form-group">
+        <div class="col-lg-10 d-flex flex-row-reverse mt-3">
+            <button type="button" class="btn btn-danger" style="background-color:#1F9CBA" id="sendsms">Send SMS</button>
+        <!-- <button type="button" class="btn btn-success button_style" id="sendsms()">Send SMS</button> -->
+        </div>
+		<div class="spinner-grow text-success" id="spinner" role="status" style="display:none;text-align: center;margin-left:auto;margin-right:auto;">
+      <span class="sr-only">Loading...</span>
+    </div>
+    <div class="alert alert-success" id="successAlert" role="alert" style="display:none;margin-top: 30px;text-align: center;margin-left:auto;margin-right:auto; width:500px;">
+    SMS is successfully sent.
+	</div>
+	<div class="alert alert-danger" id="errorAlert" role="alert" style="display:none;margin-top: 30px;text-align: center;margin-left:auto;margin-right:auto; width:500px;">
+	
+	</div>
+	
+        </div>
+        </div>
+        </form>
+        </div>
+        </div>
+        </div>
+        </div>
+        <div id ="newpage"></div>
+</body>
+</html>
